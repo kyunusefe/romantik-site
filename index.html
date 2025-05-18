@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tuğçe ve Yunus</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #fbe9e7;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        flex-direction: column;
+      }
+      h1 {
+        margin-bottom: 10px;
+        color: #d84315;
+      }
+      .puzzle-container {
+        display: grid;
+        grid-template-columns: repeat(3, 100px);
+        grid-template-rows: repeat(3, 100px);
+        gap: 2px;
+      }
+      .tile {
+        width: 100px;
+        height: 100px;
+        background-size: 300px 300px;
+        cursor: pointer;
+        border: 1px solid #ccc;
+      }
+      .hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+      #message {
+        margin-top: 20px;
+        color: #4e342e;
+        font-size: 1.2rem;
+        max-width: 80%;
+        text-align: center;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧩 Tuğçe & Yunus Puzzle 🧩</h1>
+    <div class="puzzle-container" id="puzzle"></div>
+    <div id="message">
+      Bazen biz de bu yapbozun parçaları gibi dağılabiliyoruz ama birleştirmek, az önce senin de yaptığın gibi, bizim elimizde.
+      <br/><br/>
+      Seni rahatsız edicek davranışlar sergilediğim için çok özür dilerim, hatamın farkındayım ve düzeltmek için elimden gelen her şeyi yapmaya hazırım. Seni seviyorum.
+    </div>
+    <script>
+      const imageUrl = "https://i.imgur.com/sv1CB9I.jpeg"; // Yüklediğimiz fotoğrafın yedeği
+      const puzzleContainer = document.getElementById("puzzle");
+      const message = document.getElementById("message");
+
+      let positions = Array.from({ length: 9 }, (_, i) => i);
+      let emptyIndex = 8;
+
+      function shuffle(array) {
+        for (let i = array.length - 2; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+      }
+
+      function render() {
+        puzzleContainer.innerHTML = "";
+        positions.forEach((pos, i) => {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          if (pos !== 8) {
+            tile.style.backgroundImage = `url(${imageUrl})`;
+            const x = (pos % 3) * 100;
+            const y = Math.floor(pos / 3) * 100;
+            tile.style.backgroundPosition = `-${x}px -${y}px`;
+          } else {
+            tile.classList.add("hidden");
+          }
+          tile.addEventListener("click", () => moveTile(i));
+          puzzleContainer.appendChild(tile);
+        });
+      }
+
+      function moveTile(index) {
+        const row = Math.floor(index / 3);
+        const col = index % 3;
+        const emptyRow = Math.floor(emptyIndex / 3);
+        const emptyCol = emptyIndex % 3;
+        const isAdjacent =
+          (Math.abs(row - emptyRow) === 1 && col === emptyCol) ||
+          (Math.abs(col - emptyCol) === 1 && row === emptyRow);
+
+        if (isAdjacent) {
+          [positions[index], positions[emptyIndex]] = [positions[emptyIndex], positions[index]];
+          emptyIndex = index;
+          render();
+          checkWin();
+        }
+      }
+
+      function checkWin() {
+        if (positions.every((val, i) => val === i)) {
+          message.style.display = "block";
+        }
+      }
+
+      shuffle(positions);
+      render();
+    </script>
+  </body>
+</html>
